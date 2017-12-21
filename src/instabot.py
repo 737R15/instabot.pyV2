@@ -139,7 +139,8 @@ class InstaBot:
                  unwanted_username_list=[],
                  unfollow_whitelist=[]):
         
-        self.follows_db_c.execute("CREATE TABLE IF NOT EXISTS usernames (username varchar(300) primary key)")
+        self.follows_db_c.execute("CREATE TABLE IF NOT EXISTS usernames (username varchar(300))")
+        self.follows_db_c.execute("CREATE TABLE IF NOT EXISTS medias (media_id varchar(300))")
         self.bot_start = datetime.datetime.now()
         self.unfollow_break_min = unfollow_break_min
         self.unfollow_break_max = unfollow_break_max
@@ -276,14 +277,6 @@ class InstaBot:
                 self.login_status = True
                 log_string = '%s login success!' % (self.user_login)
                 self.write_log(log_string)
-                ui.user_id = self.user_id
-                ui.get_followers()
-                for username in ui.followers:
-                    try:
-                        self.follows_db_c.execute("INSERT INTO usernames (username) VALUES(?)", (username["id"],))
-                    except:
-                        pass
-
             else:
                 self.login_status = False
                 self.write_log('Login error! Check your login data!')
@@ -379,7 +372,11 @@ class InstaBot:
                                 self.write_log(
                                     "Keep calm - It's your own media ;)")
                                 return False
-
+                            if self.follows_db_c.execute("SELECT EXISTS(SELECT 1 FROM medias WHERE media_id='"+
+                                                         self.media_by_tag[i]['id'] +
+                                                         "' LIMIT 1)").fetchone()[0] > 0:
+                                self.write_log("Keep calm - It's already liked ;)")
+                                return False
                             try:
                                 caption = self.media_by_tag[i][
                                     'caption'].encode(
@@ -428,11 +425,13 @@ class InstaBot:
                                     log_string = "Liked: %s. Like #%i." % \
                                                  (self.media_by_tag[i]['id'],
                                                   self.like_counter)
+                                    self.follows_db_c.execute("INSERT INTO medias (media_id) VALUES('"+self.media_by_tag[i]['id']+"')")
                                     self.write_log(log_string)
                                 elif like.status_code == 400:
                                     log_string = "Not liked: %i" \
                                                  % (like.status_code)
                                     self.write_log(log_string)
+                                    self.follows_db_c.execute("INSERT INTO medias (media_id) VALUES('"+self.media_by_tag[i]['id']+"')")
                                     # Some error. If repeated - can be ban!
                                     if self.error_400 >= self.error_400_to_ban:
                                         # Look like you banned!
@@ -512,6 +511,7 @@ class InstaBot:
                     log_string = "Followed: %s #%i." % (user_id,
                                                         self.follow_counter)
                     self.write_log(log_string)
+                    self.follows_db_c.execute("INSERT INTO usernames (username) VALUES('"+user_id+"')")
                 return follow
             except:
                 self.write_log("Except on follow!")
@@ -616,24 +616,20 @@ class InstaBot:
             if self.media_by_tag[0]["owner"]["id"] == self.user_id:
                 self.write_log("Keep calm - It's your own profile ;)")
                 return
+            if self.follows_db_c.execute("SELECT EXISTS(SELECT 1 FROM usernames WHERE username='"+
+                                         self.media_by_tag[0]["owner"]["id"] +
+                                         "' LIMIT 1)").fetchone()[0] > 0:
+                self.write_log("Already followed before " + self.media_by_tag[0]["owner"]["id"])
+                return
             log_string = "Trying to follow: %s" % (
                 self.media_by_tag[0]["owner"]["id"])
             self.write_log(log_string)
-            try:
-                 self.follows_db_c.execute("INSERT INTO usernames (username) VALUES(?)", (self.media_by_tag[0]["owner"]["id"],))
-             except:
-                 self.write_log("I tried to follow this guy once: %s" % (self.media_by_tag[0]["owner"]["id"]))
-                 self.bot_follow_list.append([self.media_by_tag[0]["owner"]["id"], time.time()])
-                 self.next_iteration["Follow"] = time.time() + self.add_time(self.follow_delay)
-                 return
 
             if self.follow(self.media_by_tag[0]["owner"]["id"]) != False:
                 self.bot_follow_list.append(
                     [self.media_by_tag[0]["owner"]["id"], time.time()])
                 self.next_iteration["Follow"] = time.time() + \
                                                 self.add_time(self.follow_delay)
-                self.bot_follow_list.append([self.media_by_tag[0]["owner"]["id"],time.time()])
-                self.next_iteration["Follow"] = time.time() + self.add_time(self.follow_delay)
 
     def new_auto_mod_unfollow(self):
         if time.time() > self.next_iteration["Unfollow"] and \
