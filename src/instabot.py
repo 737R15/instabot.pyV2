@@ -51,7 +51,7 @@ class InstaBot:
 
     user_agent = ("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
                   "(KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36")
-    accept_language = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'
+    accept_language = 'tr-TR,tr;en-US,en;q=0.5'
 
     # If instagram ban you - query return 400 error.
     error_400 = 0
@@ -243,9 +243,11 @@ class InstaBot:
             'username': self.user_login,
             'password': self.user_password
         }
+        
         self.s.headers.update({
-            'Accept-Encoding': 'gzip, deflate',
+            'Accept': '*/*',
             'Accept-Language': self.accept_language,
+            'Accept-Encoding': 'gzip, deflate, br',
             'Connection': 'keep-alive',
             'Content-Length': '0',
             'Host': 'www.instagram.com',
@@ -255,6 +257,7 @@ class InstaBot:
             'X-Instagram-AJAX': '1',
             'X-Requested-With': 'XMLHttpRequest'
         })
+        
         r = self.s.get(self.url)
         self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
         time.sleep(5 * random.random())
@@ -616,6 +619,8 @@ class InstaBot:
                                          self.media_by_tag[0]["owner"]["id"] +
                                          "' LIMIT 1)").fetchone()[0] > 0:
                 self.write_log("Already followed before " + self.media_by_tag[0]["owner"]["id"])
+                self.next_iteration["Follow"] = time.time() + \
+                                                self.add_time(self.follow_delay/2)
                 return
             log_string = "Trying to follow: %s" % (
                 self.media_by_tag[0]["owner"]["id"])
