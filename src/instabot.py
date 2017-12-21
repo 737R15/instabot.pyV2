@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from .unfollow_protocol import unfollow_protocol
+from .userinfo import UserInfo
 import atexit
 import datetime
 import itertools
@@ -10,14 +12,8 @@ import random
 import signal
 import sys
 import sqlite3
-
-if 'threading' in sys.modules:
-    del sys.modules['threading']
 import time
 import requests
-from unfollow_protocol import unfollow_protocol
-from userinfo import UserInfo
-
 
 class InstaBot:
     """
