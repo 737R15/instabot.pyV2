@@ -820,7 +820,8 @@ class InstaBot:
 
         if self.log_mod == 0:
             try:
-                print(log_text)
+                now_time = datetime.datetime.now()
+                print(now_time.strftime("%d.%m.%Y_%H:%M")  + " " + log_text)
             except UnicodeEncodeError:
                 print("Your text has unicode problem!")
         elif self.log_mod == 1:
