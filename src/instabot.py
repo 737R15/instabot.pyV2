@@ -14,8 +14,8 @@ import sys
 import sqlite3
 import time
 import requests
-from sql_updates import check_and_update, check_already_liked
-from sql_updates import insert_media, insert_username, check_already_followed
+from .sql_updates import check_and_update, check_already_liked
+from .sql_updates import insert_media, insert_username, check_already_followed
 
 class InstaBot:
     """
