@@ -14,8 +14,6 @@ import sys
 import sqlite3
 import time
 import requests
-from unfollow_protocol import unfollow_protocol
-from userinfo import UserInfo
 from sql_updates import check_and_update, check_already_liked
 from sql_updates import insert_media, insert_username, check_already_followed
 
