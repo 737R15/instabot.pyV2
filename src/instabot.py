@@ -444,6 +444,9 @@ class InstaBot:
                                 else:
                                     log_string = "Not liked: %i" \
                                                  % (like.status_code)
+                                    insert_media(self,
+                                                 media_id=self.media_by_tag[i]['id'],
+                                                 status=like.status_code)
                                     self.write_log(log_string)
                                     return False
                                     # Some error.
