@@ -51,9 +51,8 @@ class InstaBot:
     url_media_detail = 'https://www.instagram.com/p/%s/?__a=1'
     url_user_detail = 'https://www.instagram.com/%s/?__a=1'
 
-    user_agent = ("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36")
-    accept_language = 'tr-TR,tr;en-US,en;q=0.5'
+    user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0")
+    accept_language = 'en-US,en;q=0.5'
 
     # If instagram ban you - query return 400 error.
     error_400 = 0
@@ -231,15 +230,6 @@ class InstaBot:
     def login(self):
         log_string = 'Trying to login as %s...\n' % (self.user_login)
         self.write_log(log_string)
-        self.s.cookies.update({
-            'sessionid': '',
-            'mid': '',
-            'ig_pr': '1',
-            'ig_vw': '1920',
-            'csrftoken': '',
-            's_network': '',
-            'ds_user_id': ''
-        })
         self.login_post = {
             'username': self.user_login,
             'password': self.user_password
@@ -256,6 +246,7 @@ class InstaBot:
             'Referer': 'https://www.instagram.com/',
             'User-Agent': self.user_agent,
             'X-Instagram-AJAX': '1',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'X-Requested-With': 'XMLHttpRequest'
         })
         
@@ -266,6 +257,11 @@ class InstaBot:
             self.url_login, data=self.login_post, allow_redirects=True)
         self.s.headers.update({'X-CSRFToken': login.cookies['csrftoken']})
         self.csrftoken = login.cookies['csrftoken']
+        #ig_vw=1536; ig_pr=1.25; ig_vh=772;  ig_or=landscape-primary;
+        self.s.cookies['ig_vw'] = '1536'
+        self.s.cookies['ig_pr'] = '1.25'
+        self.s.cookies['ig_vh'] = '772'
+        self.s.cookies['ig_or'] = 'landscape-primary'
         time.sleep(5 * random.random())
 
         if login.status_code == 200:
