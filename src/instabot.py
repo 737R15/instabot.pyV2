@@ -588,6 +588,7 @@ class InstaBot:
                 self.this_tag_like_count = 0
                 self.max_tag_like_count = random.randint(
                     1, self.max_like_for_one_tag)
+                self.remove_already_liked()
             # ------------------- Like -------------------
             self.new_auto_mod_like()
             # ------------------- Follow -------------------
@@ -599,6 +600,15 @@ class InstaBot:
             # Bot iteration in 1 sec
             time.sleep(3)
             # print("Tic!")
+
+    def remove_already_liked(self):
+        self.write_log("Removing already liked medias..")
+        x = 0
+        while x < len(self.media_by_tag):
+            if check_already_liked(self, media_id=self.media_by_tag[x]['id']) == 1:
+                self.media_by_tag.remove(self.media_by_tag[x])
+            else:
+                x += 1
 
     def new_auto_mod_like(self):
         if time.time() > self.next_iteration["Like"] and self.like_per_day != 0 \
