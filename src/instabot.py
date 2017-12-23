@@ -91,6 +91,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
+    error_logger = logging.getLogger('error_logger')
     log_file_path = ''
     log_file = 0
 
@@ -144,6 +145,12 @@ class InstaBot:
         self.tag_blacklist = tag_blacklist
         self.unfollow_whitelist = unfollow_whitelist
         self.comment_list = comment_list
+        #error logger
+        self.error_logger.setLevel(logging.ERROR)
+        ch = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self.error_logger.addHandler(ch)
 
         self.time_in_day = 24 * 60 * 60
         # Like
@@ -333,6 +340,7 @@ class InstaBot:
                 except:
                     self.media_by_tag = []
                     self.write_log("Except on get_media!")
+                    self.error_logger("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
             else:
                 return 0
 
@@ -837,6 +845,7 @@ class InstaBot:
                 except:
                     self.media_on_feed = []
                     self.write_log("Except on get_media!")
+                    self.error_logger("get_media_id_recent_feed" + " ".join(str(elm) for elm in self.media_on_feed))
                     time.sleep(20)
                     return 0
             else:
