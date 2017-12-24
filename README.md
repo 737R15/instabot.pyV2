@@ -1,3 +1,12 @@
+# In My Repo
+1. liked medias saving to sqlite3
+1. followed usernames saving to sqlite3
+1. Doesn't try to like again and time saving.
+1. Dosn't follow a person again.
+
+## In Progress
+1. not liked 400 error
+
 # InstaBot
 
 > Toolkit for building automated Instagram bots without direct access to the Instagram API or passsing through the review process.
