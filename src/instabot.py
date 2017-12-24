@@ -91,6 +91,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
+    logging.basicConfig(filename='errors.log',level=logging.INFO)
     log_file_path = ''
     log_file = 0
 
@@ -333,6 +334,7 @@ class InstaBot:
                 except:
                     self.media_by_tag = []
                     self.write_log("Except on get_media!")
+                    logging.error("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
             else:
                 return 0
 
@@ -837,6 +839,7 @@ class InstaBot:
                 except:
                     self.media_on_feed = []
                     self.write_log("Except on get_media!")
+                    logging.error("get_media_id_recent_feed" + " ".join(str(elm) for elm in self.media_on_feed))
                     time.sleep(20)
                     return 0
             else:
