@@ -51,9 +51,8 @@ class InstaBot:
     url_media_detail = 'https://www.instagram.com/p/%s/?__a=1'
     url_user_detail = 'https://www.instagram.com/%s/?__a=1'
 
-    user_agent = ("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36")
-    accept_language = 'tr-TR,tr;en-US,en;q=0.5'
+    user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0")
+    accept_language = 'en-US,en;q=0.5'
 
     # If instagram ban you - query return 400 error.
     error_400 = 0
@@ -92,6 +91,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
+    logging.basicConfig(filename='errors.log',level=logging.INFO)
     log_file_path = ''
     log_file = 0
 
@@ -231,15 +231,6 @@ class InstaBot:
     def login(self):
         log_string = 'Trying to login as %s...\n' % (self.user_login)
         self.write_log(log_string)
-        self.s.cookies.update({
-            'sessionid': '',
-            'mid': '',
-            'ig_pr': '1',
-            'ig_vw': '1920',
-            'csrftoken': '',
-            's_network': '',
-            'ds_user_id': ''
-        })
         self.login_post = {
             'username': self.user_login,
             'password': self.user_password
@@ -256,6 +247,7 @@ class InstaBot:
             'Referer': 'https://www.instagram.com/',
             'User-Agent': self.user_agent,
             'X-Instagram-AJAX': '1',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'X-Requested-With': 'XMLHttpRequest'
         })
         
@@ -266,6 +258,11 @@ class InstaBot:
             self.url_login, data=self.login_post, allow_redirects=True)
         self.s.headers.update({'X-CSRFToken': login.cookies['csrftoken']})
         self.csrftoken = login.cookies['csrftoken']
+        #ig_vw=1536; ig_pr=1.25; ig_vh=772;  ig_or=landscape-primary;
+        self.s.cookies['ig_vw'] = '1536'
+        self.s.cookies['ig_pr'] = '1.25'
+        self.s.cookies['ig_vh'] = '772'
+        self.s.cookies['ig_or'] = 'landscape-primary'
         time.sleep(5 * random.random())
 
         if login.status_code == 200:
@@ -335,6 +332,7 @@ class InstaBot:
 
                     self.media_by_tag = list(all_data['tag']['media']['nodes'])
                 except:
+                    logging.error("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_by_tag))
                     self.media_by_tag = []
                     self.write_log("Except on get_media!")
             else:
@@ -588,6 +586,7 @@ class InstaBot:
                 self.this_tag_like_count = 0
                 self.max_tag_like_count = random.randint(
                     1, self.max_like_for_one_tag)
+                self.remove_already_liked()
             # ------------------- Like -------------------
             self.new_auto_mod_like()
             # ------------------- Follow -------------------
@@ -599,6 +598,15 @@ class InstaBot:
             # Bot iteration in 1 sec
             time.sleep(3)
             # print("Tic!")
+
+    def remove_already_liked(self):
+        self.write_log("Removing already liked medias..")
+        x = 0
+        while x < len(self.media_by_tag):
+            if check_already_liked(self, media_id=self.media_by_tag[x]['id']) == 1:
+                self.media_by_tag.remove(self.media_by_tag[x])
+            else:
+                x += 1
 
     def new_auto_mod_like(self):
         if time.time() > self.next_iteration["Like"] and self.like_per_day != 0 \
@@ -829,6 +837,7 @@ class InstaBot:
                         len(self.media_on_feed))
                     self.write_log(log_string)
                 except:
+                    logging.error("get_media_id_recent_feed" + " ".join(str(elm) for elm in self.media_on_feed))
                     self.media_on_feed = []
                     self.write_log("Except on get_media!")
                     time.sleep(20)
