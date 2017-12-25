@@ -102,6 +102,10 @@ class InstaBot:
     media_by_user = []
     login_status = False
 
+    # Running Times
+    start_at = 0
+    end_at = 24
+
     # For new_auto_mod
     next_iteration = {"Like": 0, "Follow": 0, "Unfollow": 0, "Comments": 0}
 
@@ -114,6 +118,8 @@ class InstaBot:
                  follow_per_day=0,
                  follow_time=5 * 60 * 60,
                  unfollow_per_day=0,
+                 start_at=0,
+                 end_at=24,
                  comment_list=[["this", "the", "your"],
                                ["photo", "picture", "pic", "shot", "snapshot"],
                                ["is", "looks", "feels", "is really"],
@@ -139,6 +145,8 @@ class InstaBot:
         
         check_and_update(self)
         self.bot_start = datetime.datetime.now()
+        self.start_at = start_at
+        self.end_at = end_at
         self.unfollow_break_min = unfollow_break_min
         self.unfollow_break_max = unfollow_break_max
         self.user_blacklist = user_blacklist
@@ -580,24 +588,29 @@ class InstaBot:
 
     def new_auto_mod(self):
         while True:
-            # ------------------- Get media_id -------------------
-            if len(self.media_by_tag) == 0:
-                self.get_media_id_by_tag(random.choice(self.tag_list))
-                self.this_tag_like_count = 0
-                self.max_tag_like_count = random.randint(
-                    1, self.max_like_for_one_tag)
-                self.remove_already_liked()
-            # ------------------- Like -------------------
-            self.new_auto_mod_like()
-            # ------------------- Follow -------------------
-            self.new_auto_mod_follow()
-            # ------------------- Unfollow -------------------
-            self.new_auto_mod_unfollow()
-            # ------------------- Comment -------------------
-            self.new_auto_mod_comments()
-            # Bot iteration in 1 sec
-            time.sleep(3)
-            # print("Tic!")
+            now = datetime.datetime.now()
+            if datetime.time(self.start_at, 0) <= now.time() <= datetime.time(self.end_at, 0):
+                # ------------------- Get media_id -------------------
+                if len(self.media_by_tag) == 0:
+                    self.get_media_id_by_tag(random.choice(self.tag_list))
+                    self.this_tag_like_count = 0
+                    self.max_tag_like_count = random.randint(
+                        1, self.max_like_for_one_tag)
+                    self.remove_already_liked()
+                # ------------------- Like -------------------
+                self.new_auto_mod_like()
+                # ------------------- Follow -------------------
+                self.new_auto_mod_follow()
+                # ------------------- Unfollow -------------------
+                self.new_auto_mod_unfollow()
+                # ------------------- Comment -------------------
+                self.new_auto_mod_comments()
+                # Bot iteration in 1 sec
+                time.sleep(3)
+                # print("Tic!")
+            else:
+                self.write_log("waiting for start_at time")
+                time.sleep(600)
 
     def remove_already_liked(self):
         self.write_log("Removing already liked medias..")
