@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sqlite3
-from datetime import datetime
-import time
+from datetime import datetime, time
 
 def check_and_update(self):
     """ At the Program start, i does look for the sql updates """
@@ -33,8 +32,9 @@ def check_already_followed(self, user_id):
 
 def insert_media(self, media_id, status):
     """ insert media to medias """
+    now = datetime.now()
     self.follows_db_c.execute("INSERT INTO medias (media_id, status, datetime) VALUES('"+
-                              media_id +"','"+ status +"','"+ str(time.time()) +"')")
+                              media_id +"','"+ status +"','"+ str(now) +"')")
 
 def insert_username(self, user_id):
     """ insert user_id to usernames """
