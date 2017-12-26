@@ -808,7 +808,12 @@ class InstaBot:
             else:
                 return 0
 
-            if self.is_selebgram is not False or self.is_fake_account is not False or self.is_active_user is not True or self.is_follower is not True:
+            if (
+                    self.is_selebgram is not False
+                    or self.is_fake_account is not False
+                    or self.is_active_user is not True
+                    or self.is_follower is not True
+            ):
                 print(current_user)
                 self.unfollow(current_id)
                 try:
