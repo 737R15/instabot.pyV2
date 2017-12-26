@@ -814,7 +814,7 @@ class InstaBot:
                     or self.is_active_user is not True
                     or self.is_follower is not True
             ):
-                print(current_user)
+                self.write_log(current_user)
                 self.unfollow(current_id)
                 try:
                     del self.media_on_feed[chooser]
