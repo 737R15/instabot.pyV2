@@ -21,7 +21,12 @@ def check_and_update(self):
     medias_info = self.follows_db_c.execute("pragma table_info(usernames)")
     medias_column_status = [o for o in medias_info if o[1] == "username_id"]
     if not medias_column_status:
-        qry = open("./sql_updates/update3.sql", 'r').read()
+        qry = """
+            CREATE TABLE "usernames_new" ( `username_id` varchar ( 300 ), `username` TEXT  );
+            INSERT INTO "usernames_new" (username_id) Select username from usernames;
+            DROP TABLE "usernames";
+            ALTER TABLE "usernames_new" RENAME TO "usernames";
+              """
         self.follows_db_c.executescript(qry)
 
 def check_already_liked(self, media_id):
@@ -33,7 +38,7 @@ def check_already_liked(self, media_id):
 
 def check_already_followed(self, user_id):
     """ controls if user already followed before """
-    if self.follows_db_c.execute("SELECT EXISTS(SELECT 1 FROM usernames WHERE username='"+
+    if self.follows_db_c.execute("SELECT EXISTS(SELECT 1 FROM usernames WHERE username_id='"+
                                  user_id + "' LIMIT 1)").fetchone()[0] > 0:
         return 1
     return 0
@@ -44,7 +49,7 @@ def insert_media(self, media_id, status):
     self.follows_db_c.execute("INSERT INTO medias (media_id, status, datetime) VALUES('"+
                               media_id +"','"+ status +"','"+ str(now) +"')")
 
-def insert_username(self, user_id, username):
+def insert_username(self, user_id):
     """ insert user_id to usernames """
-    self.follows_db_c.execute("INSERT INTO usernames (username_id, username) \
-                               VALUES('"+user_id+"','"+username+"')")
+    self.follows_db_c.execute("INSERT INTO usernames (username_id) \
+                               VALUES('"+user_id+"')")
