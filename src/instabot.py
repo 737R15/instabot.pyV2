@@ -734,8 +734,7 @@ class InstaBot:
 
         if self.login_status:
             now_time = datetime.datetime.now()
-            log_string = "%s : Get user info \n%s" % (
-                self.user_login, now_time.strftime("%d.%m.%Y %H:%M"))
+            log_string = "%s : Get user info" % self.user_login
             self.write_log(log_string)
             if self.login_status == 1:
                 url_tag = self.url_user_detail % (current_user)
