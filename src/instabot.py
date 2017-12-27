@@ -618,8 +618,9 @@ class InstaBot:
                 time.sleep(3)
                 # print("Tic!")
             else:
-                self.write_log("waiting for start_at time")
-                time.sleep(600)
+                print("sleeping until {hour}:{min}".format(hour=self.start_at_h,
+                                                           min=self.start_at_m), end="\r")
+                time.sleep(100)
 
     def remove_already_liked(self):
         self.write_log("Removing already liked medias..")
