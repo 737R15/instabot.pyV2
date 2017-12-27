@@ -310,7 +310,7 @@ class InstaBot:
             self.write_log("Logout success!")
             self.login_status = False
         except:
-            self.write_log("Logout error!")
+            logging.exception("Logout error!")
 
     def cleanup(self, *_):
         # Unfollow all bot follow
@@ -349,6 +349,7 @@ class InstaBot:
                     logging.error("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_by_tag))
                     self.media_by_tag = []
                     self.write_log("Except on get_media!")
+                    logging.exception("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
             else:
                 return 0
 
@@ -485,7 +486,7 @@ class InstaBot:
                 like = self.s.post(url_likes)
                 last_liked_media_id = media_id
             except:
-                self.write_log("Except on like!")
+                logging.exception("Except on like!")
                 like = 0
             return like
 
@@ -496,7 +497,7 @@ class InstaBot:
             try:
                 unlike = self.s.post(url_unlike)
             except:
-                self.write_log("Except on unlike!")
+                logging.exception("Except on unlike!")
                 unlike = 0
             return unlike
 
@@ -514,7 +515,7 @@ class InstaBot:
                     self.write_log(log_string)
                 return comment
             except:
-                self.write_log("Except on comment!")
+                logging.exception("Except on comment!")
         return False
 
     def follow(self, user_id):
@@ -531,7 +532,7 @@ class InstaBot:
                     insert_username(self, user_id=user_id)
                 return follow
             except:
-                self.write_log("Except on follow!")
+                logging.exception("Except on follow!")
         return False
 
     def unfollow(self, user_id):
@@ -547,7 +548,7 @@ class InstaBot:
                     self.write_log(log_string)
                 return unfollow
             except:
-                self.write_log("Exept on unfollow!")
+                logging.exception("Exept on unfollow!")
         return False
 
     def unfollow_on_cleanup(self, user_id):
@@ -580,7 +581,7 @@ class InstaBot:
                 return unfollow
             except:
                 log_string = "Except on unfollow... Looks like a network error"
-                self.write_log(log_string)
+                logging.exception(log_string)
         return False
 
     def auto_mod(self):
@@ -825,7 +826,7 @@ class InstaBot:
 
                 except:
                     media_on_feed = []
-                    self.write_log("Except on get_info!")
+                    logging.exception("Except on get_info!")
                     time.sleep(20)
                     return 0
             else:
