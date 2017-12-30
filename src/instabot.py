@@ -603,7 +603,8 @@ class InstaBot:
                     log_string = "Followed: %s #%i." % (user_id,
                                                         self.follow_counter)
                     self.write_log(log_string)
-                    insert_username(self, user_id=user_id)
+                    username = self.get_username_by_user_id(user_id=user_id)
+                    insert_username(self, user_id=user_id, username=username)
                 return follow
             except:
                 logging.exception("Except on follow!")
