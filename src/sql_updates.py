@@ -6,21 +6,21 @@ def check_and_update(self):
     """ At the Program start, i does look for the sql updates """
     self.follows_db_c.execute("CREATE TABLE IF NOT EXISTS usernames (username varchar(300))")
     self.follows_db_c.execute("CREATE TABLE IF NOT EXISTS medias (media_id varchar(300))")
-    medias_info = self.follows_db_c.execute("pragma table_info(medias)")
-    medias_column_status = [o for o in medias_info if o[1] == "status"]
-    if not medias_column_status:
+    table_info = self.follows_db_c.execute("pragma table_info(medias)")
+    table_column_status = [o for o in table_info if o[1] == "status"]
+    if not table_column_status:
         self.follows_db_c.execute("ALTER TABLE medias ADD COLUMN status integer")
-    medias_info = self.follows_db_c.execute("pragma table_info(medias)")
-    medias_column_status = [o for o in medias_info if o[1] == "datetime"]
-    if not medias_column_status:
+    table_info = self.follows_db_c.execute("pragma table_info(medias)")
+    table_column_status = [o for o in table_info if o[1] == "datetime"]
+    if not table_column_status:
         self.follows_db_c.execute("ALTER TABLE medias ADD COLUMN datetime TEXT")
-    medias_info = self.follows_db_c.execute("pragma table_info(medias)")
-    medias_column_status = [o for o in medias_info if o[1] == "code"]
-    if not medias_column_status:
+    table_info = self.follows_db_c.execute("pragma table_info(medias)")
+    table_column_status = [o for o in table_info if o[1] == "code"]
+    if not table_column_status:
         self.follows_db_c.execute("ALTER TABLE medias ADD COLUMN code TEXT")
-    medias_info = self.follows_db_c.execute("pragma table_info(usernames)")
-    medias_column_status = [o for o in medias_info if o[1] == "username_id"]
-    if not medias_column_status:
+    table_info = self.follows_db_c.execute("pragma table_info(usernames)")
+    table_column_status = [o for o in table_info if o[1] == "username_id"]
+    if not table_column_status:
         qry = """
             CREATE TABLE "usernames_new" ( `username_id` varchar ( 300 ), `username` TEXT  );
             INSERT INTO "usernames_new" (username_id) Select username from usernames;
@@ -28,6 +28,10 @@ def check_and_update(self):
             ALTER TABLE "usernames_new" RENAME TO "usernames";
               """
         self.follows_db_c.executescript(qry)
+    table_info = self.follows_db_c.execute("pragma table_info(usernames)")
+    table_column_status = [o for o in table_info if o[1] == "unfollow_count"]
+    if not table_column_status:
+        self.follows_db_c.execute("ALTER TABLE usernames ADD COLUMN unfollow_count INTEGER DEFAULT 0")
 
 def check_already_liked(self, media_id):
     """ controls if media already liked before """
@@ -49,7 +53,20 @@ def insert_media(self, media_id, status):
     self.follows_db_c.execute("INSERT INTO medias (media_id, status, datetime) VALUES('"+
                               media_id +"','"+ status +"','"+ str(now) +"')")
 
-def insert_username(self, user_id):
+def insert_username(self, user_id, username):
     """ insert user_id to usernames """
-    self.follows_db_c.execute("INSERT INTO usernames (username_id) \
-                               VALUES('"+user_id+"')")
+    self.follows_db_c.execute("INSERT INTO usernames (username_id, username) \
+                               VALUES('"+user_id+"','"+username+"')")
+
+def insert_unfollow_count(self, user_id=False, username=False):
+    """ track unfollow count for new futures """
+    if user_id:
+        self.follows_db_c.execute("UPDATE usernames" +
+                                  "SET unfollow_count = unfollow_count + 1 WHERE username_id ='" +
+                                  user_id+"'")
+    elif username:
+        self.follows_db_c.execute("UPDATE usernames" +
+                                  "SET unfollow_count = unfollow_count + 1 WHERE username ='" +
+                                  username+"'")
+    else:
+        return False
