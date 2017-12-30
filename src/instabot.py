@@ -50,6 +50,7 @@ class InstaBot:
     url_logout = 'https://www.instagram.com/accounts/logout/'
     url_media_detail = 'https://www.instagram.com/p/%s/?__a=1'
     url_user_detail = 'https://www.instagram.com/%s/?__a=1'
+    api_user_detail = 'https://i.instagram.com/api/v1/users/%s/info/'
 
     user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0")
     accept_language = 'en-US,en;q=0.5'
@@ -335,7 +336,7 @@ class InstaBot:
     def get_media_id_by_tag(self, tag):
         """ Get media ID set, by your hashtag """
 
-        if (self.login_status):
+        if self.login_status:
             log_string = "Get media id by tag: %s" % (tag)
             self.write_log(log_string)
             if self.login_status == 1:
@@ -404,7 +405,7 @@ class InstaBot:
     def get_userinfo_by_name(self, username):
         """ Get user info by name """
 
-        if (self.login_status):
+        if self.login_status:
             if self.login_status == 1:
                 url_info = self.url_user_detail % (username)
                 try:
