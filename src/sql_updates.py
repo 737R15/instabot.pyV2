@@ -86,3 +86,11 @@ def get_usernames(self):
         return usernames
     else:
         return False
+
+def get_username_random(self):
+    """ Gets random username """
+    username = self.follows_db_c.execute("SELECT * FROM usernames ORDER BY RANDOM() LIMIT 1")
+    if username:
+        return username
+    else:
+        return False
