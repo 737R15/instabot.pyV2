@@ -353,8 +353,9 @@ class InstaBot:
                     logging.exception("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
             else:
                 return 0
-
+    
     def get_instagram_url_from_media_id(self, media_id, url_flag=True, only_code=None):
+        """ Get Media Code or Full Url from Media ID Thanks to Nikished """
         media_id = int(media_id)
         if url_flag is False: return ""
         else:
@@ -367,7 +368,7 @@ class InstaBot:
             else: return 'instagram.com/p/' + shortened_id + '/'
 
     def get_username_by_media_id(self, media_id):
-        """ Get username by media ID """
+        """ Get username by media ID Thanks to Nikished """
 
         if self.login_status:
             if self.login_status == 1:
