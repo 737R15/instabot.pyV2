@@ -50,6 +50,7 @@ class InstaBot:
     url_logout = 'https://www.instagram.com/accounts/logout/'
     url_media_detail = 'https://www.instagram.com/p/%s/?__a=1'
     url_user_detail = 'https://www.instagram.com/%s/?__a=1'
+    api_user_detail = 'https://i.instagram.com/api/v1/users/%s/info/'
 
     user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0")
     accept_language = 'en-US,en;q=0.5'
@@ -102,6 +103,12 @@ class InstaBot:
     media_by_user = []
     login_status = False
 
+    # Running Times
+    start_at_h = 0,
+    start_at_m = 0,
+    end_at_h = 23,
+    end_at_m = 59,
+
     # For new_auto_mod
     next_iteration = {"Like": 0, "Follow": 0, "Unfollow": 0, "Comments": 0}
 
@@ -114,6 +121,10 @@ class InstaBot:
                  follow_per_day=0,
                  follow_time=5 * 60 * 60,
                  unfollow_per_day=0,
+                 start_at_h=0,
+                 start_at_m=0,
+                 end_at_h=23,
+                 end_at_m=59,
                  comment_list=[["this", "the", "your"],
                                ["photo", "picture", "pic", "shot", "snapshot"],
                                ["is", "looks", "feels", "is really"],
@@ -139,6 +150,10 @@ class InstaBot:
         
         check_and_update(self)
         self.bot_start = datetime.datetime.now()
+        self.start_at_h = start_at_h
+        self.start_at_m = start_at_m
+        self.end_at_h = end_at_h
+        self.end_at_m = end_at_m
         self.unfollow_break_min = unfollow_break_min
         self.unfollow_break_max = unfollow_break_max
         self.user_blacklist = user_blacklist
@@ -296,7 +311,7 @@ class InstaBot:
             self.write_log("Logout success!")
             self.login_status = False
         except:
-            self.write_log("Logout error!")
+            logging.exception("Logout error!")
 
     def cleanup(self, *_):
         # Unfollow all bot follow
@@ -321,7 +336,7 @@ class InstaBot:
     def get_media_id_by_tag(self, tag):
         """ Get media ID set, by your hashtag """
 
-        if (self.login_status):
+        if self.login_status:
             log_string = "Get media id by tag: %s" % (tag)
             self.write_log(log_string)
             if self.login_status == 1:
@@ -335,8 +350,82 @@ class InstaBot:
                     logging.error("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_by_tag))
                     self.media_by_tag = []
                     self.write_log("Except on get_media!")
+                    logging.exception("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
             else:
                 return 0
+    
+    def get_instagram_url_from_media_id(self, media_id, url_flag=True, only_code=None):
+        """ Get Media Code or Full Url from Media ID Thanks to Nikished """
+        media_id = int(media_id)
+        if url_flag is False: return ""
+        else:
+            alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+            shortened_id = ''
+            while media_id > 0:
+                media_id, idx = divmod(media_id, 64)
+                shortened_id = alphabet[idx] + shortened_id
+            if only_code: return shortened_id
+            else: return 'instagram.com/p/' + shortened_id + '/'
+
+    def get_username_by_media_id(self, media_id):
+        """ Get username by media ID Thanks to Nikished """
+
+        if self.login_status:
+            if self.login_status == 1:
+                media_id_url = self.get_instagram_url_from_media_id(int(media_id), only_code=True)
+                url_media = self.url_media_detail % (media_id_url)
+                try:
+                    r = self.s.get(url_media)
+                    all_data = json.loads(r.text)
+
+                    username = str(all_data['graphql']['shortcode_media']['owner']['username'])
+                    self.write_log("media_id=" + media_id + ", media_id_url=" +
+                                   media_id_url + ", username_by_media_id=" + username)
+                    return username
+                except:
+                    logging.exception("username_by_mediaid exception")
+                    return False
+            else:
+                return ""
+
+    def get_username_by_user_id(self, user_id):
+        """ Get username by user_id """
+        if self.login_status:
+            try:
+                url_info = self.api_user_detail % user_id
+                r = self.s.get(url_info, headers="")
+                all_data = json.loads(r.text)
+                username = all_data["user"]["username"]
+                return username
+            except:
+                logging.exception("Except on get_username_by_user_id")
+                return False
+        else:
+            return False
+
+    def get_userinfo_by_name(self, username):
+        """ Get user info by name """
+
+        if self.login_status:
+            if self.login_status == 1:
+                url_info = self.url_user_detail % (username)
+                try:
+                    r = self.s.get(url_info)
+                    all_data = json.loads(r.text)
+                    user_info = all_data['user']
+                    follows = user_info['follows']['count']
+                    follower = user_info['followed_by']['count']
+                    follow_viewer = user_info['follows_viewer']
+                    if follower > 3000 or follows > 1500:
+                        self.write_log('   >>>This is probably Selebgram, Business or Fake account')
+                    if follow_viewer:
+                        return None
+                    return user_info
+                except:
+                    logging.exception("Except on get_userinfo_by_name")
+                    return False
+            else:
+                return False
 
     def like_all_exist_media(self, media_size=-1, delay=True):
         """ Like all media ID that have self.media_by_tag """
@@ -471,7 +560,7 @@ class InstaBot:
                 like = self.s.post(url_likes)
                 last_liked_media_id = media_id
             except:
-                self.write_log("Except on like!")
+                logging.exception("Except on like!")
                 like = 0
             return like
 
@@ -482,7 +571,7 @@ class InstaBot:
             try:
                 unlike = self.s.post(url_unlike)
             except:
-                self.write_log("Except on unlike!")
+                logging.exception("Except on unlike!")
                 unlike = 0
             return unlike
 
@@ -500,7 +589,7 @@ class InstaBot:
                     self.write_log(log_string)
                 return comment
             except:
-                self.write_log("Except on comment!")
+                logging.exception("Except on comment!")
         return False
 
     def follow(self, user_id):
@@ -517,7 +606,7 @@ class InstaBot:
                     insert_username(self, user_id=user_id)
                 return follow
             except:
-                self.write_log("Except on follow!")
+                logging.exception("Except on follow!")
         return False
 
     def unfollow(self, user_id):
@@ -533,7 +622,7 @@ class InstaBot:
                     self.write_log(log_string)
                 return unfollow
             except:
-                self.write_log("Exept on unfollow!")
+                logging.exception("Exept on unfollow!")
         return False
 
     def unfollow_on_cleanup(self, user_id):
@@ -566,7 +655,7 @@ class InstaBot:
                 return unfollow
             except:
                 log_string = "Except on unfollow... Looks like a network error"
-                self.write_log(log_string)
+                logging.exception(log_string)
         return False
 
     def auto_mod(self):
@@ -580,24 +669,33 @@ class InstaBot:
 
     def new_auto_mod(self):
         while True:
-            # ------------------- Get media_id -------------------
-            if len(self.media_by_tag) == 0:
-                self.get_media_id_by_tag(random.choice(self.tag_list))
-                self.this_tag_like_count = 0
-                self.max_tag_like_count = random.randint(
-                    1, self.max_like_for_one_tag)
-                self.remove_already_liked()
-            # ------------------- Like -------------------
-            self.new_auto_mod_like()
-            # ------------------- Follow -------------------
-            self.new_auto_mod_follow()
-            # ------------------- Unfollow -------------------
-            self.new_auto_mod_unfollow()
-            # ------------------- Comment -------------------
-            self.new_auto_mod_comments()
-            # Bot iteration in 1 sec
-            time.sleep(3)
-            # print("Tic!")
+            now = datetime.datetime.now()
+            if (
+                    datetime.time(self.start_at_h, self.start_at_m) <= now.time()
+                    and now.time() <= datetime.time(self.end_at_h, self.end_at_m)
+            ):
+                # ------------------- Get media_id -------------------
+                if len(self.media_by_tag) == 0:
+                    self.get_media_id_by_tag(random.choice(self.tag_list))
+                    self.this_tag_like_count = 0
+                    self.max_tag_like_count = random.randint(
+                        1, self.max_like_for_one_tag)
+                    self.remove_already_liked()
+                # ------------------- Like -------------------
+                self.new_auto_mod_like()
+                # ------------------- Follow -------------------
+                self.new_auto_mod_follow()
+                # ------------------- Unfollow -------------------
+                self.new_auto_mod_unfollow()
+                # ------------------- Comment -------------------
+                self.new_auto_mod_comments()
+                # Bot iteration in 1 sec
+                time.sleep(3)
+                # print("Tic!")
+            else:
+                print("sleeping until {hour}:{min}".format(hour=self.start_at_h,
+                                                           min=self.start_at_m), end="\r")
+                time.sleep(100)
 
     def remove_already_liked(self):
         self.write_log("Removing already liked medias..")
@@ -734,8 +832,7 @@ class InstaBot:
 
         if self.login_status:
             now_time = datetime.datetime.now()
-            log_string = "%s : Get user info \n%s" % (
-                self.user_login, now_time.strftime("%d.%m.%Y %H:%M"))
+            log_string = "%s : Get user info" % self.user_login
             self.write_log(log_string)
             if self.login_status == 1:
                 url_tag = self.url_user_detail % (current_user)
@@ -803,14 +900,19 @@ class InstaBot:
 
                 except:
                     media_on_feed = []
-                    self.write_log("Except on get_info!")
+                    logging.exception("Except on get_info!")
                     time.sleep(20)
                     return 0
             else:
                 return 0
 
-            if self.is_selebgram is not False or self.is_fake_account is not False or self.is_active_user is not True or self.is_follower is not True:
-                print(current_user)
+            if (
+                    self.is_selebgram is not False
+                    or self.is_fake_account is not False
+                    or self.is_active_user is not True
+                    or self.is_follower is not True
+            ):
+                self.write_log(current_user)
                 self.unfollow(current_id)
                 try:
                     del self.media_on_feed[chooser]
@@ -837,9 +939,8 @@ class InstaBot:
                         len(self.media_on_feed))
                     self.write_log(log_string)
                 except:
-                    logging.error("get_media_id_recent_feed" + " ".join(str(elm) for elm in self.media_on_feed))
+                    logging.exception("get_media_id_recent_feed")
                     self.media_on_feed = []
-                    self.write_log("Except on get_media!")
                     time.sleep(20)
                     return 0
             else:
