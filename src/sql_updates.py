@@ -32,6 +32,10 @@ def check_and_update(self):
     table_column_status = [o for o in table_info if o[1] == "unfollow_count"]
     if not table_column_status:
         self.follows_db_c.execute("ALTER TABLE usernames ADD COLUMN unfollow_count INTEGER DEFAULT 0")
+    table_info = self.follows_db_c.execute("pragma table_info(usernames)")
+    table_column_status = [o for o in table_info if o[1] == "last_followed_time"]
+    if not table_column_status:
+        self.follows_db_c.execute("ALTER TABLE usernames ADD COLUMN last_followed_time TEXT (datetime('now','localtime'))")
 
 def check_already_liked(self, media_id):
     """ controls if media already liked before """
