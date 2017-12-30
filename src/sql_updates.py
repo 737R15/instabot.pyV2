@@ -35,7 +35,7 @@ def check_and_update(self):
     table_info = self.follows_db_c.execute("pragma table_info(usernames)")
     table_column_status = [o for o in table_info if o[1] == "last_followed_time"]
     if not table_column_status:
-        self.follows_db_c.execute("ALTER TABLE usernames ADD COLUMN last_followed_time TEXT (datetime('now','localtime'))")
+        self.follows_db_c.execute("ALTER TABLE usernames ADD COLUMN last_followed_time TEXT")
 
 def check_already_liked(self, media_id):
     """ controls if media already liked before """
@@ -65,13 +65,15 @@ def insert_username(self, user_id, username):
 def insert_unfollow_count(self, user_id=False, username=False):
     """ track unfollow count for new futures """
     if user_id:
-        self.follows_db_c.execute("UPDATE usernames" +
-                                  "SET unfollow_count = unfollow_count + 1 WHERE username_id ='" +
-                                  user_id+"'")
+        qry = "UPDATE usernames \
+              SET unfollow_count = unfollow_count + 1 \
+              WHERE username_id ='"+user_id+"'"
+        self.follows_db_c.execute(qry)
     elif username:
-        self.follows_db_c.execute("UPDATE usernames" +
-                                  "SET unfollow_count = unfollow_count + 1 WHERE username ='" +
-                                  username+"'")
+        qry = "UPDATE usernames \
+              SET unfollow_count = unfollow_count + 1 \
+              WHERE username ='"+username+"'"
+        self.follows_db_c.execute(qry)
     else:
         return False
 
@@ -93,7 +95,7 @@ def get_usernames(self):
 
 def get_username_random(self):
     """ Gets random username """
-    username = self.follows_db_c.execute("SELECT * FROM usernames ORDER BY RANDOM() LIMIT 1")
+    username = self.follows_db_c.execute("SELECT * FROM usernames ORDER BY RANDOM() LIMIT 1").fetchone()
     if username:
         return username
     else:
