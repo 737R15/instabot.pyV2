@@ -50,6 +50,7 @@ class InstaBot:
     url_logout = 'https://www.instagram.com/accounts/logout/'
     url_media_detail = 'https://www.instagram.com/p/%s/?__a=1'
     url_user_detail = 'https://www.instagram.com/%s/?__a=1'
+    api_user_detail = 'https://i.instagram.com/api/v1/users/%s/info/'
 
     user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0")
     accept_language = 'en-US,en;q=0.5'
@@ -335,7 +336,7 @@ class InstaBot:
     def get_media_id_by_tag(self, tag):
         """ Get media ID set, by your hashtag """
 
-        if (self.login_status):
+        if self.login_status:
             log_string = "Get media id by tag: %s" % (tag)
             self.write_log(log_string)
             if self.login_status == 1:
@@ -352,6 +353,78 @@ class InstaBot:
                     logging.exception("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
             else:
                 return 0
+
+    def get_instagram_url_from_media_id(self, media_id, url_flag=True, only_code=None):
+        media_id = int(media_id)
+        if url_flag is False: return ""
+        else:
+            alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+            shortened_id = ''
+            while media_id > 0:
+                media_id, idx = divmod(media_id, 64)
+                shortened_id = alphabet[idx] + shortened_id
+            if only_code: return shortened_id
+            else: return 'instagram.com/p/' + shortened_id + '/'
+
+    def get_username_by_media_id(self, media_id):
+        """ Get username by media ID """
+
+        if self.login_status:
+            if self.login_status == 1:
+                media_id_url = self.get_instagram_url_from_media_id(int(media_id), only_code=True)
+                url_media = self.url_media_detail % (media_id_url)
+                try:
+                    r = self.s.get(url_media)
+                    all_data = json.loads(r.text)
+
+                    username = str(all_data['graphql']['shortcode_media']['owner']['username'])
+                    self.write_log("media_id=" + media_id + ", media_id_url=" +
+                                   media_id_url + ", username_by_media_id=" + username)
+                    return username
+                except:
+                    logging.exception("username_by_mediaid exception")
+                    return False
+            else:
+                return ""
+
+    def get_username_by_user_id(self, user_id):
+        """ Get username by user_id """
+        if self.login_status:
+            try:
+                url_info = self.api_user_detail % user_id
+                r = self.s.get(url_info, headers="")
+                all_data = json.loads(r.text)
+                username = all_data["user"]["username"]
+                return username
+            except:
+                logging.exception("Except on get_username_by_user_id")
+                return False
+        else:
+            return False
+
+    def get_userinfo_by_name(self, username):
+        """ Get user info by name """
+
+        if self.login_status:
+            if self.login_status == 1:
+                url_info = self.url_user_detail % (username)
+                try:
+                    r = self.s.get(url_info)
+                    all_data = json.loads(r.text)
+                    user_info = all_data['user']
+                    follows = user_info['follows']['count']
+                    follower = user_info['followed_by']['count']
+                    follow_viewer = user_info['follows_viewer']
+                    if follower > 3000 or follows > 1500:
+                        self.write_log('   >>>This is probably Selebgram, Business or Fake account')
+                    if follow_viewer:
+                        return None
+                    return user_info
+                except:
+                    logging.exception("Except on get_userinfo_by_name")
+                    return False
+            else:
+                return False
 
     def like_all_exist_media(self, media_size=-1, delay=True):
         """ Like all media ID that have self.media_by_tag """
