@@ -70,3 +70,19 @@ def insert_unfollow_count(self, user_id=False, username=False):
                                   username+"'")
     else:
         return False
+
+def get_usernames_first(self):
+    """ Gets first element of usernames table """
+    username = self.follows_db_c.execute("SELECT * FROM usernames LIMIT 1")
+    if username:
+        return username
+    else:
+        return False
+
+def get_usernames(self):
+    """ Gets usernames table """
+    usernames = self.follows_db_c.execute("SELECT * FROM usernames")
+    if usernames:
+        return usernames
+    else:
+        return False
