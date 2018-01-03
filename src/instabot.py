@@ -464,7 +464,7 @@ class InstaBot:
                                 return False
                             try:
                                 caption = self.media_by_tag[i]['node']['edge_media_to_caption'][
-                                    'edges']['0']['node']['text'].encode(
+                                    'edges'][0]['node']['text'].encode(
                                         'ascii', errors='ignore')
                                 tag_blacklist = set(self.tag_blacklist)
                                 if sys.version_info[0] == 3:
@@ -492,8 +492,7 @@ class InstaBot:
                                         + matching_tags)
                                     return False
                             except:
-                                self.write_log(
-                                    "Couldn't find caption - not liking")
+                                logging.exception("Except on like_all_exist_media")
                                 return False
 
                             log_string = "Trying to like media: %s" % \
