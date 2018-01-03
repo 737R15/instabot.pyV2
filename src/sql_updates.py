@@ -95,7 +95,7 @@ def get_usernames(self):
 
 def get_username_random(self):
     """ Gets random username """
-    username = self.follows_db_c.execute("SELECT * FROM usernames ORDER BY RANDOM() LIMIT 1").fetchone()
+    username = self.follows_db_c.execute("SELECT * FROM usernames WHERE unfollow_count=0 ORDER BY RANDOM() LIMIT 1").fetchone()
     if username:
         return username
     else:

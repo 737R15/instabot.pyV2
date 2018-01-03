@@ -810,15 +810,15 @@ class InstaBot:
             current_user = username_row[1]
             unfollow_count = username_row[2]
 
+            if unfollow_count == 1:
+                #Found unfollowed user. This need upgrade later by direct sql
+                continue
             if not current_user:
                 current_user = self.get_username_by_user_id(user_id=current_id)
             if not current_user:
                 log_string = "api limit reached from instagram. Will try later"
                 self.write_log(log_string)
                 return False
-            if unfollow_count == 1:
-                #Found unfollowed user. This need upgrade later by direct sql
-                continue
             for wluser in self.unfollow_whitelist:
                 if wluser == current_user:
                     log_string = (
