@@ -803,6 +803,9 @@ class InstaBot:
                 self.write_log(log_string)
                 return False
             username_row = get_username_random(self)
+            if not username_row:
+                self.write_log("Looks like there is nobody to unfollow.")
+                return False
             current_id = username_row[0]
             current_user = username_row[1]
             unfollow_count = username_row[2]
