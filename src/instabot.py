@@ -756,7 +756,7 @@ class InstaBot:
     def new_auto_mod_comments(self):
         if time.time() > self.next_iteration["Comments"] and self.comments_per_day != 0 \
                 and len(self.media_by_tag) > 0 \
-                and self.check_exisiting_comment(self.media_by_tag[0]['node']['code']) == False:
+                and self.check_exisiting_comment(self.media_by_tag[0]['node']['shortcode']) == False:
             comment_text = self.generate_comment()
             log_string = "Trying to comment: %s" % (self.media_by_tag[0]['node']['id'])
             self.write_log(log_string)
