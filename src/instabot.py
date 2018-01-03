@@ -38,7 +38,7 @@ class InstaBot:
 
     https://github.com/LevPasha/instabot.py
     """
-    follows_db = sqlite3.connect("follows_db.db", timeout = 0, isolation_level = None)
+    follows_db = sqlite3.connect("follows_db.db", timeout=0, isolation_level=None)
     follows_db_c = follows_db.cursor()
     url = 'https://www.instagram.com/'
     url_tag = 'https://www.instagram.com/explore/tags/%s/?__a=1'
@@ -93,7 +93,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
-    logging.basicConfig(filename='errors.log',level=logging.INFO)
+    logging.basicConfig(filename='errors.log', level=logging.INFO)
     log_file_path = ''
     log_file = 0
 
@@ -135,8 +135,8 @@ class InstaBot:
                                 "so beautiful", "so stylish", "so professional",
                                 "lovely", "so lovely", "very lovely", "glorious",
                                 "so glorious", "very glorious", "adorable",
-                                "excellent", "amazing"],[".", "..", "...", "!",
-                                                         "!!", "!!!"]],
+                                "excellent", "amazing"],
+                               [".", "..", "...", "!", "!!", "!!!"]],
                  comments_per_day=0,
                  tag_list=['cat', 'car', 'dog'],
                  max_like_for_one_tag=5,
@@ -148,7 +148,7 @@ class InstaBot:
                  tag_blacklist=[],
                  unwanted_username_list=[],
                  unfollow_whitelist=[]):
-        
+
         check_and_update(self)
         self.bot_start = datetime.datetime.now()
         self.start_at_h = start_at_h
@@ -251,7 +251,7 @@ class InstaBot:
             'username': self.user_login,
             'password': self.user_password
         }
-        
+
         self.s.headers.update({
             'Accept': '*/*',
             'Accept-Language': self.accept_language,
@@ -266,7 +266,7 @@ class InstaBot:
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-Requested-With': 'XMLHttpRequest'
         })
-        
+
         r = self.s.get(self.url)
         self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
         time.sleep(5 * random.random())
@@ -330,7 +330,7 @@ class InstaBot:
                 self.bot_follow_list.remove(f)
 
         # Logout
-        if (self.login_status):
+        if self.login_status:
             self.logout()
 
     def get_media_id_by_tag(self, tag):
@@ -347,13 +347,12 @@ class InstaBot:
 
                     self.media_by_tag = list(all_data['graphql']['hashtag']['edge_hashtag_to_media']['edges'])
                 except:
-                    logging.error("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_by_tag))
                     self.media_by_tag = []
                     self.write_log("Except on get_media!")
-                    logging.exception("get_media_id_by_tag" + " ".join(str(elm) for elm in self.media_on_feed))
+                    logging.exception("get_media_id_by_tag")
             else:
                 return 0
-    
+
     def get_instagram_url_from_media_id(self, media_id, url_flag=True, only_code=None):
         """ Get Media Code or Full Url from Media ID Thanks to Nikished """
         media_id = int(media_id)
@@ -782,10 +781,10 @@ class InstaBot:
         check_comment = self.s.get(url_check)
         all_data = json.loads(check_comment.text)
         if all_data['graphql']['shortcode_media']['owner']['id'] == self.user_id:
-                self.write_log("Keep calm - It's your own media ;)")
-                # Del media to don't loop on it
-                del self.media_by_tag[0]
-                return True
+            self.write_log("Keep calm - It's your own media ;)")
+            # Del media to don't loop on it
+            del self.media_by_tag[0]
+            return True
         comment_list = list(all_data['graphql']['shortcode_media']['edge_media_to_comment']['edges'])
         for d in comment_list:
             if d['node']['owner']['id'] == self.user_id:
