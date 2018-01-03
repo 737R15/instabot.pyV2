@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
 import atexit
