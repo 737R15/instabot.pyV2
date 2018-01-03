@@ -3,9 +3,11 @@
 1. followed usernames saving to sqlite3
 1. Doesn't try to like again and time saving.
 1. Dosn't follow a person again.
+1. not liked 400 error fixed.
+1. Start and stop time.
 
 ## In Progress
-1. not liked 400 error
+1. Done
 
 # InstaBot
 
@@ -19,6 +21,10 @@
 |:--------------------:|:---:|:----------------------------------------------------:|:--------------------------------:|
 | login                | str | Your instagram username                              |      |
 | password             | str | Your instagram password                              |      |
+| start_at_h           | int | Start program at the hour                            | 0    |
+| start_at_m           | int | Start program at the min                             | 0    |
+| end_at_h             | int | End program at the hour                              | 23   |
+| end_at_m             | int | End program at the min                               | 59   |
 | like_per_day         | int | Number of photos to like per day (over 1000 may cause throttling) | 1000 |
 | media_max_like       | int | Maximum number of likes on photos to like (set to 0 to disable) | 0    |
 | media_min_like       | int | Maximum number of likes on photos to like (set to 0 to disable) | 0    |
