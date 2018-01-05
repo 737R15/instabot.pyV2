@@ -531,7 +531,7 @@ class InstaBot:
                                                  % (like.status_code)
                                     insert_media(self,
                                                  media_id=self.media_by_tag[i]['node']['id'],
-                                                 status=like.status_code)
+                                                 status=str(like.status_code))
                                     self.write_log(log_string)
                                     return False
                                     # Some error.
