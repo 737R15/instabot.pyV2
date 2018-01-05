@@ -13,40 +13,38 @@
 
 > Toolkit for building automated Instagram bots without direct access to the Instagram API or passsing through the review process.
 
-[![Donate](https://img.shields.io/badge/PayPal-Donate-brightgreen.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=7BMM6JGE73322&lc=US)
-[![Chat on Telegram](https://img.shields.io/badge/Chat%20on-Telegram-brightgreen.svg)](https://t.me/joinchat/AAAAAEG_8hv3PIJnmq1VVg)
-
 ## Parameters
 | Parameter            | Type|                Description                           |        Default value             |
 |:--------------------:|:---:|:----------------------------------------------------:|:--------------------------------:|
 | login                | str | Your instagram username                              |      |
 | password             | str | Your instagram password                              |      |
-| start_at_h           | int | Start program at the hour                            | 0    |
-| start_at_m           | int | Start program at the min                             | 0    |
-| end_at_h             | int | End program at the hour                              | 23   |
-| end_at_m             | int | End program at the min                               | 59   |
-| like_per_day         | int | Number of photos to like per day (over 1000 may cause throttling) | 1000 |
-| media_max_like       | int | Maximum number of likes on photos to like (set to 0 to disable) | 0    |
-| media_min_like       | int | Maximum number of likes on photos to like (set to 0 to disable) | 0    |
-| follow_per_day       | int | Photos to like per day                               | 0    |
-| follow_time          | int | Seconds to wait before unfollowing                   | 5 * 60 * 60 |
-| unfollow_per_day     | int | Users to unfollow per day                            | 0    |
-| comments_per_day     | int | Comments to post per day                             | 0    |
-| comment_list         | [[str]] | List of word lists for comment generation        | [['this', 'your'], ['photo', 'picture', 'pic', 'shot'], ['is', 'looks', 'is really'], ['great', 'super', 'good'], ['.', '...', '!', '!!']] |
-| tag_list             | [str] | Tags to use for finding posts                      | ['cat', 'car', 'dog'] |
-| tag_blacklist        | [str] | Tags to ignore when liking posts                   | [] |
-| user_blacklist       | {str: str} | Users whose posts to ignore                   | {} |
-| max_like_for_one_tag | int | How many media of a given tag to like at once (out of 21) | 5 |
-| unfollow_break_min   | int | Minimum seconds to break between unfollows           | 15 |
-| unfollow_break_max   | int | Maximum seconds to break between unfollows           | 30 |
+| start\_at\_h         | int | Start program at the hour                            | 0    |
+| start\_at\_m         | int | Start program at the min                             | 0    |
+| end\_at\_h           | int | End program at the hour                              | 23   |
+| end\_at\_m           | int | End program at the min                               | 59   |
+| database\_name       | str | change the name of database file to use multiple account | "follows\_db.db"   |
+| like\_per\_day       | int | Number of photos to like per day (over 1000 may cause throttling) | 1000 |
+| media\_max\_like     | int | Maximum number of likes on photos to like (set to 0 to disable) | 0    |
+| media\_min\_like     | int | Maximum number of likes on photos to like (set to 0 to disable) | 0    |
+| follow\_per\_day     | int | Photos to like per day                               | 0    |
+| follow\_time         | int | Seconds to wait before unfollowing                   | 5 * 60 * 60 |
+| unfollow\_per\_day   | int | Users to unfollow per day                            | 0    |
+| comments\_per\_day   | int | Comments to post per day                             | 0    |
+| comment\_list        | [[str]] | List of word lists for comment generation        | [['this', 'your'], ['photo', 'picture', 'pic', 'shot'], ['is', 'looks', 'is really'], ['great', 'super', 'good'], ['.', '...', '!', '!!']] |
+| tag\_list            | [str] | Tags to use for finding posts                      | ['cat', 'car', 'dog'] |
+| tag\_blacklist       | [str] | Tags to ignore when liking posts                   | [] |
+| user\_blacklist      | {str: str} | Users whose posts to ignore                   | {} |
+| max\_like\_for\_one_tag | int | How many media of a given tag to like at once (out of 21) | 5 |
+| unfollow\_break\_min | int | Minimum seconds to break between unfollows           | 15 |
+| unfollow\_break\_max | int | Maximum seconds to break between unfollows           | 30 |
 | log_mod              | int | Logging target (0 log to console, 1 log to file, 2 no log.) | 0 |
 | proxy                | str | Access instagram through a proxy. (host:port or user:password@host:port) | |
 
 ## Methods
 | Method | Description |
 |:------:|:-----------:|
-| get_media_id_by_tag(tag) | Add photos with a given tag to like queue |
-| like_all_exist_media(num) | Like some number of media in queue |
+| get\_media\_id\_by\_tag(tag) | Add photos with a given tag to like queue |
+| like\_all\_exist\_media(num) | Like some number of media in queue |
 | auto_mod() | Automatically loop through tags and like photos |
 | unlike(id) | Unlike media, given its ID. |
 | comment(id, comment) | Write a comment on the media with a given ID. |
