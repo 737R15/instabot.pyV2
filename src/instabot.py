@@ -796,7 +796,8 @@ class InstaBot:
                     return True
             return False
         except:
-            logging.exception("check_exisiting_comment")
+            logging.exception("check_exisiting_comment : ")
+            logging.error("Media Code : " + media_code)
 
     def auto_unfollow(self):
         checking = True
