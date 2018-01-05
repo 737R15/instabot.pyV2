@@ -94,7 +94,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
-    logging.basicConfig(filename='errors.log', level=logging.INFO)
+    logging.basicConfig(filename='errors.log', level=logging.DEBUG)
     log_file_path = ''
     log_file = 0
 
