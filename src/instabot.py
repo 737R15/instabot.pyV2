@@ -39,8 +39,10 @@ class InstaBot:
 
     https://github.com/LevPasha/instabot.py
     """
-    follows_db = sqlite3.connect("follows_db.db", timeout=0, isolation_level=None)
-    follows_db_c = follows_db.cursor()
+    database_name = "follows_db.db"
+    follows_db = None
+    follows_db_c = None
+
     url = 'https://www.instagram.com/'
     url_tag = 'https://www.instagram.com/explore/tags/%s/?__a=1'
     url_likes = 'https://www.instagram.com/web/likes/%s/like/'
@@ -127,6 +129,7 @@ class InstaBot:
                  start_at_m=0,
                  end_at_h=23,
                  end_at_m=59,
+                 database_name='follows_db.db',
                  comment_list=[["this", "the", "your"],
                                ["photo", "picture", "pic", "shot", "snapshot"],
                                ["is", "looks", "feels", "is really"],
@@ -150,6 +153,9 @@ class InstaBot:
                  unwanted_username_list=[],
                  unfollow_whitelist=[]):
 
+        self.database_name = database_name
+        self.follows_db = sqlite3.connect(database_name, timeout=0, isolation_level=None)
+        self.follows_db_c = self.follows_db.cursor()
         check_and_update(self)
         self.bot_start = datetime.datetime.now()
         self.start_at_h = start_at_h
