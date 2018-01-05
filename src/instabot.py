@@ -778,22 +778,25 @@ class InstaBot:
         return res.capitalize()
 
     def check_exisiting_comment(self, media_code):
-        url_check = self.url_media_detail % (media_code)
-        check_comment = self.s.get(url_check)
-        all_data = json.loads(check_comment.text)
-        if all_data['graphql']['shortcode_media']['owner']['id'] == self.user_id:
-            self.write_log("Keep calm - It's your own media ;)")
-            # Del media to don't loop on it
-            del self.media_by_tag[0]
-            return True
-        comment_list = list(all_data['graphql']['shortcode_media']['edge_media_to_comment']['edges'])
-        for d in comment_list:
-            if d['node']['owner']['id'] == self.user_id:
-                self.write_log("Keep calm - Media already commented ;)")
+        try:
+            url_check = self.url_media_detail % (media_code)
+            check_comment = self.s.get(url_check)
+            all_data = json.loads(check_comment.text)
+            if all_data['graphql']['shortcode_media']['owner']['id'] == self.user_id:
+                self.write_log("Keep calm - It's your own media ;)")
                 # Del media to don't loop on it
                 del self.media_by_tag[0]
                 return True
-        return False
+            comment_list = list(all_data['graphql']['shortcode_media']['edge_media_to_comment']['edges'])
+            for d in comment_list:
+                if d['node']['owner']['id'] == self.user_id:
+                    self.write_log("Keep calm - Media already commented ;)")
+                    # Del media to don't loop on it
+                    del self.media_by_tag[0]
+                    return True
+            return False
+        except:
+            logging.exception("check_exisiting_comment")
 
     def auto_unfollow(self):
         checking = True
