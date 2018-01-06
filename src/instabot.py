@@ -817,9 +817,6 @@ class InstaBot:
             current_user = username_row[1]
             unfollow_count = username_row[2]
 
-            if unfollow_count == 1:
-                #Found unfollowed user. This need upgrade later by direct sql
-                continue
             if not current_user:
                 current_user = self.get_username_by_user_id(user_id=current_id)
             if not current_user:
@@ -902,10 +899,10 @@ class InstaBot:
 
                 except:
                     logging.exception("Except on auto_unfollow!")
-                    time.sleep(20)
-                    return 0
+                    time.sleep(3)
+                    return False
             else:
-                return 0
+                return False
 
             if (
                     self.is_selebgram is not False
