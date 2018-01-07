@@ -96,7 +96,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
-    logging.basicConfig(filename='errors.log', level=logging.INFO)
+    logging.basicConfig(filename='errors.log', level=logging.DEBUG)
     log_file_path = ''
     log_file = 0
 
@@ -537,7 +537,7 @@ class InstaBot:
                                                  % (like.status_code)
                                     insert_media(self,
                                                  media_id=self.media_by_tag[i]['node']['id'],
-                                                 status=like.status_code)
+                                                 status=str(like.status_code))
                                     self.write_log(log_string)
                                     return False
                                     # Some error.
@@ -786,20 +786,24 @@ class InstaBot:
     def check_exisiting_comment(self, media_code):
         url_check = self.url_media_detail % (media_code)
         check_comment = self.s.get(url_check)
-        all_data = json.loads(check_comment.text)
-        if all_data['graphql']['shortcode_media']['owner']['id'] == self.user_id:
-            self.write_log("Keep calm - It's your own media ;)")
-            # Del media to don't loop on it
-            del self.media_by_tag[0]
-            return True
-        comment_list = list(all_data['graphql']['shortcode_media']['edge_media_to_comment']['edges'])
-        for d in comment_list:
-            if d['node']['owner']['id'] == self.user_id:
-                self.write_log("Keep calm - Media already commented ;)")
+        if check_comment.status_code == 200:
+            all_data = json.loads(check_comment.text)
+            if all_data['graphql']['shortcode_media']['owner']['id'] == self.user_id:
+                self.write_log("Keep calm - It's your own media ;)")
                 # Del media to don't loop on it
                 del self.media_by_tag[0]
                 return True
-        return False
+            comment_list = list(all_data['graphql']['shortcode_media']['edge_media_to_comment']['edges'])
+            for d in comment_list:
+                if d['node']['owner']['id'] == self.user_id:
+                    self.write_log("Keep calm - Media already commented ;)")
+                    # Del media to don't loop on it
+                    del self.media_by_tag[0]
+                    return True
+            return False
+        else:
+            insert_media(self, self.media_by_tag[0]['node']['id'], str(check_comment.status_code))
+            self.media_by_tag.remove(self.media_by_tag[0])
 
     def auto_unfollow(self):
         checking = True
