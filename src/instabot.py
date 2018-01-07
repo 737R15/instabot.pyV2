@@ -804,6 +804,7 @@ class InstaBot:
         else:
             insert_media(self, self.media_by_tag[0]['node']['id'], str(check_comment.status_code))
             self.media_by_tag.remove(self.media_by_tag[0])
+            return False
 
     def auto_unfollow(self):
         checking = True
