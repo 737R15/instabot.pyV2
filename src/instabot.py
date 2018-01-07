@@ -778,9 +778,9 @@ class InstaBot:
         return res.capitalize()
 
     def check_exisiting_comment(self, media_code):
-        try:
-            url_check = self.url_media_detail % (media_code)
-            check_comment = self.s.get(url_check)
+        url_check = self.url_media_detail % (media_code)
+        check_comment = self.s.get(url_check)
+        if check_comment.status_code == 200:
             all_data = json.loads(check_comment.text)
             if all_data['graphql']['shortcode_media']['owner']['id'] == self.user_id:
                 self.write_log("Keep calm - It's your own media ;)")
@@ -795,9 +795,9 @@ class InstaBot:
                     del self.media_by_tag[0]
                     return True
             return False
-        except:
-            logging.exception("check_exisiting_comment : ")
-            logging.error("Media Code : " + media_code)
+        else:
+            insert_media(self, self.media_by_tag[0]['node']['id'], str(check_comment.status_code))
+            self.media_by_tag.remove(self.media_by_tag[0])
 
     def auto_unfollow(self):
         checking = True
