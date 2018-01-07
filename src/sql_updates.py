@@ -59,8 +59,9 @@ def insert_media(self, media_id, status):
 
 def insert_username(self, user_id, username):
     """ insert user_id to usernames """
-    self.follows_db_c.execute("INSERT INTO usernames (username_id, username) \
-                               VALUES('"+user_id+"','"+username+"')")
+    now = datetime.now()
+    self.follows_db_c.execute("INSERT INTO usernames (username_id, username, last_followed_time) \
+                               VALUES('"+user_id+"','"+username+"','"+ str(now) +"')")
 
 def insert_unfollow_count(self, user_id=False, username=False):
     """ track unfollow count for new futures """
