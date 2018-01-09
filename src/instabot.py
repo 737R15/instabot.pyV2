@@ -96,7 +96,7 @@ class InstaBot:
     self_follower = 0
 
     # Log setting.
-    logging.basicConfig(filename='errors.log', level=logging.DEBUG)
+    logging.basicConfig(filename='errors.log', level=logging.INFO)
     log_file_path = ''
     log_file = 0
 
@@ -469,34 +469,35 @@ class InstaBot:
                                 self.write_log("Keep calm - It's already liked ;)")
                                 return False
                             try:
-                                caption = self.media_by_tag[i]['node']['edge_media_to_caption'][
-                                    'edges'][0]['node']['text'].encode(
-                                        'ascii', errors='ignore')
-                                tag_blacklist = set(self.tag_blacklist)
-                                if sys.version_info[0] == 3:
-                                    tags = {
-                                        str.lower(
-                                            (tag.decode('ASCII')).strip('#'))
-                                        for tag in caption.split()
-                                        if (tag.decode('ASCII')
-                                            ).startswith("#")
-                                    }
-                                else:
-                                    tags = {
-                                        unicode.lower(
-                                            (tag.decode('ASCII')).strip('#'))
-                                        for tag in caption.split()
-                                        if (tag.decode('ASCII')
-                                            ).startswith("#")
-                                    }
+                                if (len(self.media_by_tag[i]['node']['edge_media_to_caption']['edges']) > 1):
+                                    caption = self.media_by_tag[i]['node']['edge_media_to_caption'][
+                                        'edges'][0]['node']['text'].encode(
+                                            'ascii', errors='ignore')
+                                    tag_blacklist = set(self.tag_blacklist)
+                                    if sys.version_info[0] == 3:
+                                        tags = {
+                                            str.lower(
+                                                (tag.decode('ASCII')).strip('#'))
+                                            for tag in caption.split()
+                                            if (tag.decode('ASCII')
+                                                ).startswith("#")
+                                        }
+                                    else:
+                                        tags = {
+                                            unicode.lower(
+                                                (tag.decode('ASCII')).strip('#'))
+                                            for tag in caption.split()
+                                            if (tag.decode('ASCII')
+                                                ).startswith("#")
+                                        }
 
-                                if tags.intersection(tag_blacklist):
-                                    matching_tags = ', '.join(
-                                        tags.intersection(tag_blacklist))
-                                    self.write_log(
-                                        "Not liking media with blacklisted tag(s): "
-                                        + matching_tags)
-                                    return False
+                                    if tags.intersection(tag_blacklist):
+                                        matching_tags = ', '.join(
+                                            tags.intersection(tag_blacklist))
+                                        self.write_log(
+                                            "Not liking media with blacklisted tag(s): "
+                                            + matching_tags)
+                                        return False
                             except:
                                 logging.exception("Except on like_all_exist_media")
                                 return False
